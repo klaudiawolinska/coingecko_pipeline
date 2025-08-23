@@ -45,11 +45,10 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 │       └── coingecko_to_s3_operator.py     # custom CoinGecko to S3 operator
 ├── snowflake/                              # SQL scripts for raw and core data layers
 │   └── ... 
-├── airflow_settings.yaml              # connections & variables
-├── requirements.txt                   # python dependencies
-├── packages.txt                       # system packages if needed
-├── Dockerfile                         # Astro Airflow image
-├── .env.example                       # env vars template
+├── airflow_settings.yaml                   # connections & variables
+├── requirements.txt                        # python dependencies
+├── packages.txt                            # system packages if needed
+├── Dockerfile                              # Astro Airflow image
 ├── .gitignore
 └── README.md
 ```
