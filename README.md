@@ -2,6 +2,7 @@
 
 This repository contains a data pipeline built with **Apache Airflow** (running with **Astro**) that extracts daily cryptocurrency market data from the **CoinGecko API**, stores it in **AWS S3** as NDJSON files, ingests into **Snowflake RAW tables** via Snowpipe, and models the data into a **star schema** for analytics.
 
+<br><br>
 
 ## 🎯 Project Focus
 
