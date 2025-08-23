@@ -2,6 +2,7 @@
 
 This repository contains a data pipeline built with **Apache Airflow** (running with **Astro**) that extracts daily cryptocurrency market data from the **CoinGecko API**, stores it in **AWS S3** as NDJSON files, ingests into **Snowflake RAW tables** via Snowpipe, and models the data into a **star schema** for analytics.
 
+
 ## 🎯 Project Focus
 
 * Every day, for the selected **5 coins** (`bitcoin`, `ethereum`, `tether`, `solana`, `dogecoin`), it calls the CoinGecko API:
@@ -28,7 +29,6 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 
 * Final **star schema** enables easy analytics by coin, date, currency.
 
----
 
 ## 📂 Repo structure
 
@@ -52,7 +52,6 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 └── README.md
 ```
 
----
 
 ## 🚀 Getting started
 
@@ -101,7 +100,6 @@ Airflow UI → [http://localhost:8080](http://localhost:8080) (default user: `ad
 
 Connections and Variables are automatically loaded from `airflow_settings.yaml`.
 
----
 
 ## 🔄 Running the pipeline
 
@@ -118,7 +116,6 @@ Backfill (e.g., for July 2025):
 airflow dags backfill coingecko_to_s3 -s 2025-07-01 -e 2025-08-01
 ```
 
----
 
 ## 📝 Outputs
 
@@ -142,7 +139,6 @@ In Snowflake:
   * `DIM_CURRENCY`
   * `FACT_COIN_MARKET`
 
----
 
 ## ⚙️ Configuration
 
@@ -166,7 +162,6 @@ Changes take effect after:
 astro dev restart
 ```
 
----
 
 ## 📄 License
 
