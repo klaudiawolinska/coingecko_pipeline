@@ -142,6 +142,8 @@ In Snowflake:
   * `DIM_CURRENCY`
   * `FACT_COIN_MARKET`
 
+---
+
 ## ⚙️ Configuration
 
 Edit `airflow_settings.yaml` for:
@@ -163,6 +165,8 @@ Changes take effect after:
 ```bash
 astro dev restart
 ```
+
+---
 
 ## 📄 License
 
