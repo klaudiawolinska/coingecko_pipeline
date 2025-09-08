@@ -1,6 +1,6 @@
 # CoinGecko Pipeline
 
-This repository contains a data pipeline built with **Apache Airflow** (running with **Astro**) that extracts daily cryptocurrency market data from the **CoinGecko API**, stores it in **AWS S3** as NDJSON files, ingests into **Snowflake RAW tables** via Snowpipe, and models the data into a **star schema** for analytics.
+This repository contains a data pipeline built with **Apache Airflow** (running with **Astro**) that extracts daily cryptocurrency market data from the **CoinGecko API**, stores it in **AWS S3**, ingests into **Snowflake RAW tables** via Snowpipe, and models the data into a minimal **star schema** for analytics.
 
 <br>
 
@@ -18,13 +18,13 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
   * `market_cap_usd`
   * `volume_usd`
 
-* Writes one **NDJSON file per coin per day** into S3:
+* Writes one **JSON file per coin per day** into S3:
 
   ```
-  s3://<bucket>/<prefix>/coin={coin}/load_date=YYYY-MM-DD/data.ndjson
+  s3://<bucket>/<prefix>/{coin}/{date}/{coin}_{date}_data.json
   ```
 
-* Snowpipe ingests files from S3 into **RAW\.COIN\_MARKET\_RAW** (VARIANT column).
+* Snowpipe ingests files from S3 into **RAW\.RAW\_COINGECKO\_COIN\_MARKET** (VARIANT column).
 
 * Snowflake **streams + tasks** move data from RAW to STAGING.
 
@@ -43,7 +43,7 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 │   │   └── coingecko_hook.py               # custom hook for connection to CoinGecko API
 │   └── operators/
 │       └── coingecko_to_s3_operator.py     # custom CoinGecko to S3 operator
-├── snowflake/                              # SQL scripts for raw and core data layers
+├── snowflake/                              # Snowflake scripts (stage, Snowpipe, all data warehouse layers)
 │   └── ... 
 ├── airflow_settings.yaml                   # connections & variables
 ├── requirements.txt                        # python dependencies
@@ -76,20 +76,17 @@ cd coingecko-pipeline
 Copy `.env.example` to `.env` and set values:
 
 ```env
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret
-AWS_DEFAULT_REGION=eu-central-1
+AIRFLOW_CONN_COINGECKO_DEFAULT=http://:@https%3A%2F%2Fapi.coingecko.com%2Fapi%2Fv3?api_key=<your_API_key>
 
-S3_BUCKET=your-bucket-name
-S3_PREFIX=coingecko/prices
-COINGECKO_COINS=bitcoin,ethereum,tether,solana,dogecoin
+AIRFLOW_CONN_AWS_DEFAULT=aws://?region_name=<your_region_name>
+AWS_ACCESS_KEY_ID=<your_access_key>
+AWS_SECRET_ACCESS_KEY=<your_secret>
+```
 
-SNOWFLAKE_ACCOUNT=your_account
-SNOWFLAKE_USER=your_user
-SNOWFLAKE_PASSWORD=your_password
-SNOWFLAKE_ROLE=SYSADMIN
-SNOWFLAKE_WAREHOUSE=LOADER_WH
-SNOWFLAKE_DATABASE=CRYPTO
+Changes take effect after:
+
+```bash
+astro dev restart
 ```
 
 ### 3. Start Airflow
@@ -126,46 +123,20 @@ airflow dags backfill coingecko_to_s3 -s 2025-07-01 -e 2025-08-01
 In S3 you’ll see:
 
 ```
-s3://my-bucket/coingecko/prices/
-  ├── coin=bitcoin/load_date=2025-08-01/data.ndjson
-  ├── coin=ethereum/load_date=2025-08-01/data.ndjson
+s3://<your_bucket>/<your_prefix>/
+  ├── bitcoin/2025-08-01/bitcoin_2025-08-01_data.json
+  ├── ethereum/2025-08-01/ethereum_2025-08-01_data.json
   └── ...
 ```
 
 In Snowflake:
 
-* **RAW\.COIN\_MARKET\_RAW** (semi-structured, `VARIANT`)
-* **STAGING.COIN\_MARKET** (flattened)
-* **STAR schema**:
+* **RAW\.RAW\_COINGECKO\_COIN\_MARKET** (semi-structured, `VARIANT`)
+* **STAGING.STG\_COINGECKO\_COIN\_MARKET** (flattened)
+* **MARTS schema**:
 
-  * `DIM_COIN`
-  * `DIM_DATE`
-  * `DIM_CURRENCY`
   * `FACT_COIN_MARKET`
-
-<br>
-
-## ⚙️ Configuration
-
-Edit `airflow_settings.yaml` for:
-
-* **Connections**:
-
-  * `coingecko_default` → base URL: `https://api.coingecko.com/api/v3`
-  * `aws_default` → AWS region
-  * `snowflake_default` → account, user, role, warehouse
-  
-* **Variables**:
-
-  * `S3_BUCKET`
-  * `S3_PREFIX`
-  * `COINGECKO_COINS`
-
-Changes take effect after:
-
-```bash
-astro dev restart
-```
+  * `DIM_COIN`
 
 <br>
 
