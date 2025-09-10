@@ -1,12 +1,12 @@
 # CoinGecko Pipeline
 
-This repository contains a data pipeline built with **Apache Airflow** (running with **Astro**) that extracts daily cryptocurrency market data from the **CoinGecko API**, stores it in **AWS S3**, ingests into **Snowflake RAW tables** via Snowpipe, and models the data into a minimal **star schema** for analytics.
+This repository contains a data pipeline built with Apache Airflow that extracts daily cryptocurrency market data from the CoinGecko API, stores it in AWS S3, ingests into Snowflake RAW tables via Snowpipe, and models the data into a minimal star schema for analytics.
 
 <br>
 
 ## 🎯 Project Focus
 
-* Every day, for the selected **5 coins** (`bitcoin`, `ethereum`, `tether`, `solana`, `dogecoin`), it calls the CoinGecko API:
+* Every day, for the selected 5 coins (`bitcoin`, `ethereum`, `tether`, `solana`, `dogecoin`), it calls the CoinGecko API:
 
   ```
   https://api.coingecko.com/api/v3/coins/{coin}/history?date=DD-MM-YYYY
@@ -14,21 +14,21 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 
 * Extracts market data:
 
-  * `price_usd`
-  * `market_cap_usd`
-  * `volume_usd`
+  * `current_price`
+  * `market_cap`
+  * `total_volume`
 
-* Writes one **JSON file per coin per day** into S3:
+* Writes one JSON file per coin per day into S3:
 
   ```
-  s3://<bucket>/<prefix>/{coin}/{date}/{coin}_{date}_data.json
+  s3://<bucket>/<prefix>/{date}/{coin}/{coin}_{date}_data.json
   ```
 
-* Snowpipe ingests files from S3 into **RAW\.RAW\_COINGECKO\_COIN\_MARKET** (VARIANT column).
+* Snowpipe ingests files from S3 into `RAW\.RAW\_COINGECKO\_COIN\_MARKET` (VARIANT column).
 
-* Snowflake **streams + tasks** move data from RAW to STAGING.
+* Snowflake streams + tasks move data from RAW to STAGING.
 
-* Final **star schema** enables easy analytics by coin, date, currency.
+* Final `MART` schema enables analytics.
 
 <br>
 
@@ -43,7 +43,7 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 │   │   └── coingecko_hook.py               # custom hook for connection to CoinGecko API
 │   └── operators/
 │       └── coingecko_to_s3_operator.py     # custom CoinGecko to S3 operator
-├── snowflake/                              # Snowflake scripts (stage, Snowpipe, all data warehouse layers)
+├── snowflake/                              # Snowflake setup script (stage, Snowpipe, all data warehouse layers)
 │   └── ... 
 ├── airflow_settings.yaml                   # connections & variables
 ├── requirements.txt                        # python dependencies
@@ -61,7 +61,7 @@ This repository contains a data pipeline built with **Apache Airflow** (running 
 
 * [Astro CLI](https://www.astronomer.io/docs/astro/cli/install-cli)
 * Docker & Docker Compose
-* AWS credentials with write access to S3
+* AWS Admin credentials
 * A Snowflake account
 
 ### 1. Clone the repo
@@ -73,7 +73,7 @@ cd coingecko-pipeline
 
 ### 2. Configure environment
 
-Copy `.env.example` to `.env` and set values:
+Create `.env` file and set values:
 
 ```env
 AIRFLOW_CONN_COINGECKO_DEFAULT=http://:@https%3A%2F%2Fapi.coingecko.com%2Fapi%2Fv3?api_key=<your_API_key>
@@ -81,12 +81,6 @@ AIRFLOW_CONN_COINGECKO_DEFAULT=http://:@https%3A%2F%2Fapi.coingecko.com%2Fapi%2F
 AIRFLOW_CONN_AWS_DEFAULT=aws://?region_name=<your_region_name>
 AWS_ACCESS_KEY_ID=<your_access_key>
 AWS_SECRET_ACCESS_KEY=<your_secret>
-```
-
-Changes take effect after:
-
-```bash
-astro dev restart
 ```
 
 ### 3. Start Airflow
@@ -124,16 +118,16 @@ In S3 you’ll see:
 
 ```
 s3://<your_bucket>/<your_prefix>/
-  ├── bitcoin/2025-08-01/bitcoin_2025-08-01_data.json
-  ├── ethereum/2025-08-01/ethereum_2025-08-01_data.json
+  ├── 2025-08-01/bitcoin/bitcoin_2025-08-01_data.json
+  ├── 2025-08-01/ethereum/ethereum_2025-08-01_data.json
   └── ...
 ```
 
 In Snowflake:
 
-* **RAW\.RAW\_COINGECKO\_COIN\_MARKET** (semi-structured, `VARIANT`)
-* **STAGING.STG\_COINGECKO\_COIN\_MARKET** (flattened)
-* **MARTS schema**:
+* `RAW\.RAW\_COINGECKO\_COIN\_MARKET` (semi-structured, `VARIANT`)
+* `STAGING.STG\_COINGECKO\_COIN\_MARKET` (flattened)
+* `MARTS` schema:
 
   * `FACT_COIN_MARKET`
   * `DIM_COIN`
