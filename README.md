@@ -24,11 +24,11 @@ This repository contains a data pipeline built with Apache Airflow that extracts
   s3://<bucket>/<prefix>/{date}/{coin}/{coin}_{date}_data.json
   ```
 
-* Snowpipe ingests files from S3 into `RAW\.RAW\_COINGECKO\_COIN\_MARKET` (VARIANT column).
+* Snowpipe ingests files from S3 into `raw.raw_coingecko_coin_market` (VARIANT column).
 
-* Snowflake streams + tasks move data from RAW to STAGING.
+* Snowflake streams + tasks move data from `raw` to `staging`.
 
-* Final `MART` schema enables analytics.
+* Final `mart` schema enables analytics.
 
 <br>
 
@@ -93,6 +93,10 @@ Airflow UI → [http://localhost:8080](http://localhost:8080) (default user: `ad
 
 Connections and Variables are automatically loaded from `airflow_settings.yaml`.
 
+### 4. Run Snowflake script
+
+Log in to your Snowflake account and follow the instructions and commands from the `snowflake/raw_to_mart_setup.sql' file.
+
 <br>
 
 ## 🔄 Running the pipeline
@@ -125,12 +129,12 @@ s3://<your_bucket>/<your_prefix>/
 
 In Snowflake:
 
-* `RAW\.RAW\_COINGECKO\_COIN\_MARKET` (semi-structured, `VARIANT`)
-* `STAGING.STG\_COINGECKO\_COIN\_MARKET` (flattened)
-* `MARTS` schema:
+* `raw.raw_coingecko_coin_market` (semi-structured, `VARIANT`)
+* `staging.stg_coingecko_coin_market` (flattened)
+* `mart` schema:
 
-  * `FACT_COIN_MARKET`
-  * `DIM_COIN`
+  * `fact_coin_market`
+  * `dim_coin`
 
 <br>
 
