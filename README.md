@@ -95,7 +95,7 @@ Connections and Variables are automatically loaded from `airflow_settings.yaml`.
 
 ### 4. Run Snowflake script
 
-Log in to your Snowflake account and follow the instructions and commands from the `snowflake/raw_to_mart_setup.sql' file.
+Log in to your Snowflake account and follow the instructions and commands from the `snowflake/raw_to_mart_setup.sql` file.
 
 <br>
 
