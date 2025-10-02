@@ -2,8 +2,6 @@
 
 This repository contains a data pipeline built with Apache Airflow that extracts daily cryptocurrency market data from the CoinGecko API, stores it in AWS S3, ingests into Snowflake RAW tables via Snowpipe, and models the data into a minimal star schema for analytics.
 
-<br>
-
 ## 🎯 Project Focus
 
 * Every day, for the selected 5 coins (`bitcoin`, `ethereum`, `tether`, `solana`, `dogecoin`), it calls the CoinGecko API:
@@ -30,8 +28,6 @@ This repository contains a data pipeline built with Apache Airflow that extracts
 
 * Final `mart` schema enables analytics.
 
-<br>
-
 ## 📂 Repo structure
 
 ```
@@ -52,8 +48,6 @@ This repository contains a data pipeline built with Apache Airflow that extracts
 ├── .gitignore
 └── README.md
 ```
-
-<br>
 
 ## 🚀 Getting started
 
@@ -97,8 +91,6 @@ Connections and Variables are automatically loaded from `airflow_settings.yaml`.
 
 Log in to your Snowflake account and follow the instructions and commands from the `snowflake/raw_to_mart_setup.sql` file.
 
-<br>
-
 ## 🔄 Running the pipeline
 
 Enable DAG `coingecko_to_s3` in the UI or trigger manually:
@@ -113,8 +105,6 @@ Backfill (e.g., for July 2025):
 ```bash
 airflow dags backfill coingecko_to_s3 -s 2025-07-01 -e 2025-08-01
 ```
-
-<br>
 
 ## 📝 Outputs
 
